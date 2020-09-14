@@ -14,6 +14,7 @@ morgan.token('entry', function getEntry (res) {
 app.use(bodyParser.json())
 app.use(morgan(':method :url :status :response-time ms - :res[content-length] :entry'))
 app.use(cors())
+app.use(express.static('build'))
 
 
 app.get('/', (req, res) => {
