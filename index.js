@@ -23,16 +23,6 @@ app.get('/', (req, res) => {
     res.send('hello world')
 })
 
-app.delete('/api/persons/:id', (req, res) => {
-    const id = req.params.id
-
-    db.findByIdAndRemove(req.params.id)
-        .then(result => {
-            response.status(204).end()
-        })
-        .catch(error => next(error))
-})
-
 app.get('/api/persons', (req, res) => {
     console.log("First:" , db)
     db.find ({}).then(result => {
@@ -43,6 +33,31 @@ app.get('/api/persons', (req, res) => {
     })
 })
  
+app.delete('/api/persons/:id', (req, res) => {
+    const id = req.params.id
+
+    db.findByIdAndRemove(req.params.id)
+        .then(result => {
+            response.status(204).end()
+        })
+        .catch(error => next(error))
+})
+
+app.put('/api/persons/:id', (req, res, next) => {
+    const body = req.body
+  
+    const person = {
+        name: body.name,
+        number: body.number
+    }
+  
+    person.findByIdAndUpdate(req.params.id, person, { new: true })
+      .then(updatedPerson => {
+        response.json(updatedPerson)
+      })
+      .catch(error => next(error))
+  })
+
 app.get('/api/persons/:id', (req, res) => {
  
     db.findById(req.params.id).then(person => {
@@ -58,24 +73,17 @@ app.get('/api/persons/:id', (req, res) => {
  
 app.post('/api/persons', (req, res) => {
     const body = req.body
-    console.log('Body:' , body.number)
-    console.log('Body:' , body["number"])
 
     if (body["name"] == undefined || body["number"] == undefined) {
         return res.status(401).json({
             error: 'content missing'
         })
     }
-    else if (db.find((person) => person["number"] == body.number)) {
-        return res.status(402).json({
-            error: 'Phone number already exists'
-        })
-    }
     const person = new db({
         name: body.name,
         number: body.number
     })
-    console.log("New Entry", person)
+
     person.save().then(savedNote => {
         res.json(savedNote)
     }).catch(error => {
