@@ -5,6 +5,7 @@ const fs = require('fs')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const cors = require('cors')
+const { response } = require('express')
 
 const app = express()
 
@@ -24,45 +25,79 @@ app.get('/', (req, res) => {
 
 app.delete('/api/persons/:id', (req, res) => {
     const id = req.params.id
-    const persons = db.filter(person => person.id != id)
-    fs.writeFile("db.json", JSON.stringify(persons), (err) => {
-        if(err) throw err;
-        console.log('Deleted entry');
-    })
-})
 
-app.get('/api/persons/:id', (req, res) => {
-    const id = req.params.id
-    const person = db.find(person => person.id == id)
-    res.json(person)
-})
-
-app.post('/api/persons/', (req,res) => {
-
-    const entry = req.body
-    console.log(db.find(person => person.name == res.name))
-    if(entry["name"] == undefined || entry["number"] == undefined){
-        res.send({error: 'name or number undefined'})
-    }else if(db.find(person => person.name == entry.name)){
-        res.send({error: 'name already defined'})
-    }else{
-        const id = Math.floor(Math.random() * 1000)
-        entry.id = id;
-        db.push(entry)
-    
-        fs.writeFile("db.json", JSON.stringify(db), (err) => {
-            if(err) throw err;
-            console.log('Added new entry')
+    db.findByIdAndRemove(req.params.id)
+        .then(result => {
+            response.status(204).end()
         })
-        res.send(db)
-    }
+        .catch(error => next(error))
 })
 
 app.get('/api/persons', (req, res) => {
+    console.log("First:" , db)
     db.find({}).then(result => {
+        console.log("Get request", result)
         res.json(result)
+    }).catch(error => {
+        console.log(error)
     })
 })
+ 
+app.get('/api/persons/:id', (req, res) => {
+ 
+    db.findById(req.params.id).then(person => {
+        if (person) {
+            res.json(person)
+        }
+        else {
+            res.status(404).end()
+        }
+    }).catch(error => next(error))
+ 
+})
+ 
+app.post('/api/persons', (req, res) => {
+    const body = req.body
+    console.log('Body:' , body.number)
+    console.log('Body:' , body["number"])
+    
+    db.find({}).then(result => {
+        console.log("Persons:" , result)
+    }).catch(error => {
+        console.log(error)
+    })
+
+    if (body["name"] == undefined || body["number"] == undefined) {
+        return res.status(401).json({
+            error: 'content missing'
+        })
+    }
+    else if (db.find((person) => person["number"] == body["number"])) {
+        return res.status(402).json({
+            error: 'Phone number already exists'
+        })
+    }
+    const person = new Person({
+        name: body.name,
+        number: body.number
+    })
+    db.save().then(savedNote => {
+        res.json(savedNote)
+    })
+})
+ 
+ 
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+ 
+    if (error.name === 'CastError') {
+        return response.status(400).send({ error: 'malformatted id' })
+    }
+ 
+    next(error)
+}
+ 
+app.use(errorHandler)
 
 app.get('/info/', (req, res) => {
     res.send(`This phonebook has ${db.length} items 
