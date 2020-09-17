@@ -66,11 +66,11 @@ app.post('/api/persons', (req, res) => {
             error: 'content missing'
         })
     }
-    // else if (db.find((person) => person["number"] == body.number)) {
-    //     return res.status(402).json({
-    //         error: 'Phone number already exists'
-    //     })
-    // }
+    else if (db.find((person) => person["number"] == body.number)) {
+        return res.status(402).json({
+            error: 'Phone number already exists'
+        })
+    }
     const person = new db({
         name: body.name,
         number: body.number
