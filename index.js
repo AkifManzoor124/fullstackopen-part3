@@ -24,9 +24,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/api/persons', (req, res) => {
-    console.log("First:" , db)
     db.find ({}).then(result => {
-        console.log("Get request", result)
         res.json(result)
     }).catch(error =>{
         console.log(error)
@@ -84,13 +82,12 @@ app.post('/api/persons', (req, res) => {
         number: body.number
     })
 
-    person.save().then(savedNote => {
-        res.json(savedNote)
+    person.save().then(savedPerson => {
+        res.json(savedPerson)
     }).catch(error => {
         console.log(error)
     })
 })
- 
  
 const errorHandler = (error, request, response, next) => {
     console.error(error.message)
