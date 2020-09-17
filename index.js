@@ -1,5 +1,6 @@
+require('dotenv').config()
 const express = require('express')
-const db = require('./db.json')
+const db = require('./models/person')
 const fs = require('fs')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
@@ -58,7 +59,9 @@ app.post('/api/persons/', (req,res) => {
 })
 
 app.get('/api/persons', (req, res) => {
-    res.json(db)
+    db.find({}).then(result => {
+        res.json(result)
+    })
 })
 
 app.get('/info/', (req, res) => {
