@@ -35,10 +35,10 @@ app.delete('/api/persons/:id', (req, res) => {
 
 app.get('/api/persons', (req, res) => {
     console.log("First:" , db)
-    db.find({}).then(result => {
+    db.find ({}).then(result => {
         console.log("Get request", result)
         res.json(result)
-    }).catch(error => {
+    }).catch(error =>{
         console.log(error)
     })
 })
@@ -72,11 +72,11 @@ app.post('/api/persons', (req, res) => {
             error: 'content missing'
         })
     }
-    else if (db.find((person) => person["number"] == body["number"])) {
-        return res.status(402).json({
-            error: 'Phone number already exists'
-        })
-    }
+    // else if (db.find((person) => person["number"] == body.number)) {
+    //     return res.status(402).json({
+    //         error: 'Phone number already exists'
+    //     })
+    // }
     const person = new Person({
         name: body.name,
         number: body.number
