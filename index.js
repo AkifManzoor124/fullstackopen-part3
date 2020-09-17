@@ -77,7 +77,7 @@ app.post('/api/persons', (req, res) => {
     //         error: 'Phone number already exists'
     //     })
     // }
-    const person = new Person({
+    const person = new db({
         name: body.name,
         number: body.number
     })
