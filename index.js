@@ -60,12 +60,6 @@ app.post('/api/persons', (req, res) => {
     const body = req.body
     console.log('Body:' , body.number)
     console.log('Body:' , body["number"])
-    
-    db.find({}).then(result => {
-        console.log("Persons:" , result)
-    }).catch(error => {
-        console.log(error)
-    })
 
     if (body["name"] == undefined || body["number"] == undefined) {
         return res.status(401).json({
@@ -81,8 +75,11 @@ app.post('/api/persons', (req, res) => {
         name: body.name,
         number: body.number
     })
-    db.save().then(savedNote => {
+    console.log("New Entry", person)
+    person.save().then(savedNote => {
         res.json(savedNote)
+    }).catch(error => {
+        console.log(error)
     })
 })
  
